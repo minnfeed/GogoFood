@@ -81,7 +81,7 @@ Each microservice communicates via RESTful APIs and is deployed independently fo
 
 For any questions or feedback, please contact:
 - **Project Owner**: Lê Duy Khang
-- **Email**: [your-email@example.com]
+- **Email**: ldkhang0410@gmail.com
 - **Document**: [GoGoFood Full Document](https://docs.google.com/document/d/10to7R8pKmIlqJIzjFTqDZrrXIzEHq1eTMEEoiog3Z2I/edit?hl=vi&tab=t.0#heading=h.ug3o61ffdhx1)
 
 ---
