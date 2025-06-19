@@ -4,6 +4,7 @@ import com.example.springbootservices.model.enums.Status;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ public class User {
 
     @Id
     @GeneratedValue(generator = "uuid2")
+    @Column(columnDefinition = "BINARY(16)")
     private UUID id;
 
     @Column(unique = true, nullable = false)
