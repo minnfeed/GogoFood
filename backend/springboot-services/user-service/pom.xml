@@ -78,7 +78,11 @@
             <artifactId>jjwt-api</artifactId>
             <version>0.11.5</version>
         </dependency>
-
+<!--        Redis lưu vào database-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
         <!-- JJWT Implementation -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>

@@ -49,10 +49,6 @@ public class User {
     @JoinColumn(name = "role_id")
     private Role role;
 
-    // Quan hệ với RefreshToken
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RefreshToken> refreshTokens = new ArrayList<>();
-
 
 
 }

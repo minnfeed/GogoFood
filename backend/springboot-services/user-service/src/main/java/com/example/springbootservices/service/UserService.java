@@ -3,6 +3,7 @@ package com.example.springbootservices.service;
 import com.example.springbootservices.dto.RegisterRequest;
 import com.example.springbootservices.model.entites.Role;
 import com.example.springbootservices.model.entites.User;
+import com.example.springbootservices.model.enums.Status;
 import com.example.springbootservices.reponsitory.RoleRepository;
 import com.example.springbootservices.reponsitory.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,7 @@ public class UserService {
         user.setPhone(request.getPhone());
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setStatus(Status.INACTIVE);
         user.setRole(role);
         return userRepository.save(user);
     }
