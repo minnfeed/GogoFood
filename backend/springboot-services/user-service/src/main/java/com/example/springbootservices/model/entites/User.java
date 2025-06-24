@@ -1,12 +1,16 @@
 package com.example.springbootservices.model.entites;
 
+import com.example.springbootservices.model.enums.Gender;
 import com.example.springbootservices.model.enums.Status;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -49,6 +53,17 @@ public class User {
     @JoinColumn(name = "role_id")
     private Role role;
 
+    @Column(name = "avatar_url")
+    private String avatarUrl;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Address> addresses = new ArrayList<>();
+
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
+
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 
 
 }

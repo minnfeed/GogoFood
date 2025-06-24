@@ -1,5 +1,6 @@
 package com.example.springbootservices.service;
 
+import com.example.springbootservices.dto.LoginRequest;
 import com.example.springbootservices.dto.RegisterRequest;
 import com.example.springbootservices.model.entites.Role;
 import com.example.springbootservices.model.entites.User;
@@ -43,6 +44,9 @@ public class UserService {
         user.setStatus(Status.INACTIVE);
         user.setRole(role);
         return userRepository.save(user);
+    }
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
     }
 }
 

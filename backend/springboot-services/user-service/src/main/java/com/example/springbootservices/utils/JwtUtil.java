@@ -34,7 +34,9 @@ public class JwtUtil {
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
                 .compact();
     }
-
+    public long getJwtExpirationMs() {
+        return jwtExpirationMs;
+    }
 
     public String extractUsername(String token) {
         return extractAllClaims(token).getSubject();
