@@ -14,9 +14,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     // Tìm user theo username
     Optional<User> findByUsername(String username);
 
-    // Tìm user theo email
-    Optional<User> findByEmail(String email);
-
     // Tìm danh sách user theo status (ACTIVE, BANNED, INACTIVE)
     List<User> findByStatus(String status);
 
