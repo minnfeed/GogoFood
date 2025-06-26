@@ -1,15 +1,21 @@
 package com.example.springbootservices.service;
 
-import com.example.springbootservices.dto.LoginRequest;
+import com.example.springbootservices.dto.AddressDto;
 import com.example.springbootservices.dto.RegisterRequest;
+import com.example.springbootservices.dto.UserDto;
 import com.example.springbootservices.model.entites.Role;
 import com.example.springbootservices.model.entites.User;
 import com.example.springbootservices.model.enums.Status;
 import com.example.springbootservices.reponsitory.RoleRepository;
 import com.example.springbootservices.reponsitory.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -47,6 +53,45 @@ public class UserService {
     }
     public User getUserByUsername(String username) {
         return userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    public void save(User user) {
+        userRepository.save(user);
+    }
+
+    public UserDto convertToDto(User user) {
+        UserDto dto = new UserDto();
+        dto.setId(user.getId());
+        dto.setUsername(user.getUsername());
+        dto.setEmail(user.getEmail());
+        dto.setFullName(user.getFullName());
+        dto.setPhone(user.getPhone());
+        dto.setStatus(user.getStatus());
+        dto.setCreatedAt(user.getCreatedAt());
+        dto.setUpdatedAt(user.getUpdatedAt());
+        dto.setRole(user.getRole().getName());
+        dto.setAvatarUrl(user.getAvatarUrl());
+        dto.setDateOfBirth(user.getDateOfBirth());
+        dto.setGender(user.getGender());
+
+        List<AddressDto> addressDtos = user.getAddresses().stream()
+                .map(address -> new AddressDto(
+                        address.getId(),
+                        address.getStreet(),
+                        address.getWard(),
+                        address.getDistrict(),
+                        address.getCity(),
+                        address.isDefault()
+                ))
+                .collect(Collectors.toList());
+
+        dto.setAddresses(addressDtos);
+        return dto;
+    }
+
+    public Optional<User> findByEmail(String mail) {
+        return Optional.ofNullable(userRepository.findByEmail(mail)
+                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy user")));
     }
 }
 

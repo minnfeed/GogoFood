@@ -1,24 +1,25 @@
 package com.example.springbootservices.controller;
 
 import com.example.springbootservices.dto.*;
+import com.example.springbootservices.service.OtpService;
 import com.example.springbootservices.service.UserService;
 import com.example.springbootservices.utils.JwtUtil;
 import jakarta.validation.Valid;
-import com.example.springbootservices.dto.AddressDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 import com.example.springbootservices.model.entites.User;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
@@ -36,6 +37,12 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    OtpService otpService;
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         authenticationManager.authenticate(
@@ -47,40 +54,14 @@ public class AuthController {
 
         String token = jwtUtil.generateToken(userDetails);
 
-        UserDto dto = new UserDto();
-        dto.setId(user.getId());
-        dto.setUsername(user.getUsername());
-        dto.setEmail(user.getEmail());
-        dto.setFullName(user.getFullName());
-        dto.setPhone(user.getPhone());
-        dto.setStatus(user.getStatus());
-        dto.setCreatedAt(user.getCreatedAt());
-        dto.setUpdatedAt(user.getUpdatedAt());
-        dto.setRole(user.getRole().getName());
-        dto.setAvatarUrl(user.getAvatarUrl());
-        dto.setDateOfBirth(user.getDateOfBirth());
-        dto.setGender(user.getGender());
-
-        List<AddressDto> addressDtos = user.getAddresses().stream()
-                .map(address -> new AddressDto(
-                        address.getId(),
-                        address.getStreet(),
-                        address.getWard(),
-                        address.getDistrict(),
-                        address.getCity(),
-                        address.isDefault()
-                ))
-                .collect(Collectors.toList());
-
-        dto.setAddresses(addressDtos);
+        UserDto userDto = userService.convertToDto(user);
 
         LoginResponse response = new LoginResponse(
                 token,
                 jwtUtil.getJwtExpirationMs(),
                 "Bearer",
-                dto
+                userDto
         );
-
         return ResponseEntity.ok(response);
     }
     @PostMapping("/register")
@@ -91,5 +72,87 @@ public class AuthController {
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
+
+        User user = userService.getUserByUsername(userDetails.getUsername());
+
+        UserDto userDto = userService.convertToDto(user);
+        return ResponseEntity.ok(userDto);
+    }
+    @PutMapping("/me")
+    public ResponseEntity<?> updateCurrentUser(@AuthenticationPrincipal UserDetails userDetails,
+                                               @RequestBody UpdateUserRequest request) {
+        User user = userService.getUserByUsername(userDetails.getUsername());
+
+        user.setFullName(request.getFullName());
+        user.setPhone(request.getPhone());
+        user.setAvatarUrl(request.getAvatarUrl());
+        user.setDateOfBirth(request.getDateOfBirth());
+        user.setGender(request.getGender());
+        user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+
+        userService.save(user);
+        UserDto userDto = userService.convertToDto(user);
+        return ResponseEntity.ok(userDto);
+    }
+    @PutMapping("/change-password")
+    public ResponseEntity<?> changePassword(@AuthenticationPrincipal UserDetails userDetails,
+                                            @RequestBody ChangePasswordRequest request) {
+        User user = userService.getUserByUsername(userDetails.getUsername());
+
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Mật khẩu cũ không đúng");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        userService.save(user);
+
+        return ResponseEntity.ok("Đổi mật khẩu thành công");
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestParam String channel,
+                                            @RequestParam String to) {
+        Map<String, String> response = new HashMap<>();
+        Optional<User> optionalUser = userService.findByEmail(to);
+        if (optionalUser.isEmpty()) {
+            response.put("message", "Email không tồn tại trong hệ thống");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        otpService.sendOtp(channel, to);
+        response.put("message", "OTP đã được gửi qua " + channel);
+        return ResponseEntity.ok(response);
+    }
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, String>> resetPassword(@RequestBody ResetPasswordRequest request) {
+        Map<String, String> response = new HashMap<>();
+
+        // 1. Kiểm tra OTP
+        boolean validOtp = otpService.verifyOtp(request.getEmail(), request.getOtp());
+        if (!validOtp) {
+            response.put("message", "OTP không hợp lệ hoặc đã hết hạn");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
+        // 2. Tìm user
+        Optional<User> optionalUser = userService.findByEmail(request.getEmail());
+        if (optionalUser.isEmpty()) {
+            response.put("message", "Email không tồn tại");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+
+        User user = optionalUser.get();
+
+        // 3. Mã hóa mật khẩu mới
+        String hashedPassword = passwordEncoder.encode(request.getNewPassword());
+        user.setPassword(hashedPassword);
+        userService.save(user); // hoặc userRepository.save(user);
+
+        response.put("message", "Đặt lại mật khẩu thành công");
+        return ResponseEntity.ok(response);
     }
 }
