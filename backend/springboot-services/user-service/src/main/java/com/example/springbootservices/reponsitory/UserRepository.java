@@ -22,4 +22,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     // Kiểm tra email đã tồn tại chưa
     boolean existsByEmail(String email);
+
+    Optional<User> findByEmail(String email);
+
 }

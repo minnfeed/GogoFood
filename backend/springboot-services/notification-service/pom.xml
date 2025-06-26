@@ -104,6 +104,10 @@
                     <release>21</release> <!-- nếu bạn muốn build đúng với Java 21 -->
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
         </plugins>
     </build>
 </project>
