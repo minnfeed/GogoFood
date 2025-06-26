@@ -1,0 +1,42 @@
+package com.example.springbootservices.model.entites;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
+import jakarta.persistence.Id;
+
+import java.util.UUID;
+
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@Table(name = "addresses")
+@NoArgsConstructor
+public class Address {
+
+    @Id
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @Column(columnDefinition = "BINARY(16)")
+    private UUID id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Column(nullable = false)
+    private String street; // Ví dụ: 123 Nguyễn Văn Cừ
+
+    private String ward;     // Phường 1
+    private String district; // Quận 5
+    private String city;     // TP. HCM
+
+    @Column(name = "is_default")
+    private boolean isDefault;
+
+}
+
