@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:gogo_food/viewmodels/login_view_model.dart';
 import 'package:gogo_food/viewmodels/signup_view_model.dart';
+import 'package:gogo_food/views/login_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -12,9 +15,14 @@ class SignupScreen extends StatefulWidget {
 
 class _SignupScreen extends State<SignupScreen> {
   @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final vm = SignupViewModel();
+    final vm = context.watch<SignupViewModel>();
 
     return Scaffold(
       appBar: AppBar(
@@ -33,25 +41,44 @@ class _SignupScreen extends State<SignupScreen> {
       ),
       backgroundColor: Colors.grey.shade100,
       body: SingleChildScrollView(
-        padding: EdgeInsetsGeometry.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _buildTextField(
+              focusNode: vm.fullNameFocus,
               label: 'Full name',
               hintText: 'Enter full name',
               controller: vm.fullNameController,
               errorText: vm.fullNameError,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             _buildTextField(
-              label: 'Phone or Email',
-              hintText: 'Enter phone or email',
-              controller: vm.emailPhoneControler,
-              errorText: vm.emailPhoneError,
+              focusNode: vm.usernameFocus,
+              label: 'Username',
+              hintText: 'Enter username',
+              controller: vm.usernameController,
+              errorText: vm.usernameError,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             _buildTextField(
+              focusNode: vm.phoneFocus,
+              label: 'Phone number',
+              hintText: 'Enter phone number',
+              controller: vm.phoneController,
+              errorText: vm.phoneError,
+            ),
+            const SizedBox(height: 8),
+            _buildTextField(
+              focusNode: vm.emailFocus,
+              label: 'Email',
+              hintText: 'Enter email',
+              controller: vm.emailController,
+              errorText: vm.emailError,
+            ),
+            const SizedBox(height: 8),
+            _buildTextField(
+              focusNode: vm.passwordFocus,
               label: 'Password',
               hintText: 'Enter password',
               controller: vm.passwordController,
@@ -60,8 +87,9 @@ class _SignupScreen extends State<SignupScreen> {
               isPassword: true,
               errorText: vm.passwordError,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             _buildTextField(
+              focusNode: vm.confirmPasswordFocus,
               label: 'Confirm Password',
               hintText: 'Enter password',
               controller: vm.confirmPasswordController,
@@ -70,7 +98,7 @@ class _SignupScreen extends State<SignupScreen> {
               isPassword: true,
               errorText: vm.confirmPasswordError,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             RichText(
               text: TextSpan(
                 style: GoogleFonts.sofiaSans(fontSize: 18, color: Colors.black),
@@ -86,12 +114,14 @@ class _SignupScreen extends State<SignupScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 8),
             Center(
               child: ElevatedButton(
-                onPressed: vm.signup,
+                onPressed: vm.isValid ? vm.signup : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey,
+                  backgroundColor: vm.isValid
+                      ? const Color(0xFFE13454)
+                      : Colors.grey,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24),
                   ),
@@ -102,11 +132,11 @@ class _SignupScreen extends State<SignupScreen> {
                 ),
                 child: const Text(
                   'SIGN UP',
-                  style: TextStyle(color: Colors.black),
+                  style: TextStyle(color: Colors.white),
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -115,7 +145,17 @@ class _SignupScreen extends State<SignupScreen> {
                   style: TextStyle(fontSize: 16),
                 ),
                 TextButton(
-                  onPressed: vm.login,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ChangeNotifierProvider(
+                          create: (_) => LoginViewModel(),
+                          child: const LoginScreen(),
+                        ),
+                      ),
+                    );
+                  },
                   child: const Text(
                     'Login',
                     style: TextStyle(color: Colors.redAccent, fontSize: 18),
@@ -123,7 +163,7 @@ class _SignupScreen extends State<SignupScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Row(
               children: const [
                 Expanded(child: Divider(endIndent: 10)),
@@ -131,7 +171,7 @@ class _SignupScreen extends State<SignupScreen> {
                 Expanded(child: Divider(indent: 10)),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -154,6 +194,7 @@ class _SignupScreen extends State<SignupScreen> {
   }
 
   Widget _buildTextField({
+    required FocusNode focusNode,
     required String label,
     required String hintText,
     required TextEditingController controller,
@@ -167,15 +208,29 @@ class _SignupScreen extends State<SignupScreen> {
       children: [
         Text(
           label,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 4),
         TextField(
+          focusNode: focusNode,
           controller: controller,
           obscureText: obscureText,
           decoration: InputDecoration(
             hintText: hintText,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: errorText != null ? Colors.red : Colors.transparent,
+                width: 2,
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: errorText != null ? Colors.red : Colors.transparent,
+              ),
+            ),
             errorText: errorText,
             suffixIcon: isPassword
                 ? IconButton(

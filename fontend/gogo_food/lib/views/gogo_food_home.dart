@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gogo_food/viewmodels/home_view_model.dart';
-import 'package:gogo_food/viewmodels/login_view_model.dart';
-import 'package:gogo_food/views/login_screen.dart';
+import 'package:gogo_food/viewmodels/welcome_view_model.dart';
+import 'package:gogo_food/views/welcome_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
@@ -33,8 +33,8 @@ class _GogoFoodHome extends State<GogoFoodHome> {
           PageRouteBuilder(
             transitionDuration: const Duration(milliseconds: 700),
             pageBuilder: (_, _, __) => ChangeNotifierProvider(
-              create: (_) => LoginViewModel(),
-              child: const LoginScreen(),
+              create: (_) => WelcomeViewModel(),
+              child: WelcomeScreen(),
             ),
             transitionsBuilder: (_, animation, _, child) {
               return FadeTransition(opacity: animation, child: child);

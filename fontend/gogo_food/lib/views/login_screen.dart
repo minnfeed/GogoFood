@@ -3,159 +3,189 @@ import 'package:gogo_food/viewmodels/login_view_model.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+  @override
+  State<StatefulWidget> createState() {
+    return _LoginScreen();
+  }
+}
 
+class _LoginScreen extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
-    final vm = Provider.of<LoginViewModel>(context);
-    final size = MediaQuery.of(context).size;
+    final vm = context.watch<LoginViewModel>();
 
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          color: Colors.black87,
-          image: DecorationImage(
-            image: AssetImage('assets/images/login_image.png'),
-            opacity: 0.6,
-            fit: BoxFit.cover,
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text(
+          'Log In',
+          style: GoogleFonts.inter(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
           ),
+          textAlign: TextAlign.center,
         ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        elevation: 0,
+        leading: BackButton(color: Colors.black),
+      ),
+      backgroundColor: Colors.grey.shade100,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _buildTextField(
+              focusNode: vm.usernameFocus,
+              label: 'Username or phone or email',
+              hintText: 'Enter username or phone or email',
+              controller: vm.usernameController,
+              errorText: vm.usernameError,
+            ),
+            const SizedBox(height: 16),
+            _buildTextField(
+              focusNode: vm.passwordFocus,
+              label: 'Password',
+              hintText: 'Enter password',
+              errorText: vm.passwordError,
+              controller: vm.passwordController,
+              isPassword: true,
+              toogleVisibility: vm.togglePasswordVisibility,
+              obscureText: !vm.showPassword,
+            ),
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: vm.forgotPassword,
+              child: const Text(
+                'Forgot a password?',
+                style: TextStyle(color: Colors.redAccent),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Center(
+              child: ElevatedButton(
+                onPressed: vm.isValid ? vm.login : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: vm.isValid
+                      ? const Color(0xFFE13454)
+                      : Colors.grey,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadiusGeometry.circular(24),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 14,
+                  ),
+                ),
+                child: const Text(
+                  'SIGN IN',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+            const SizedBox(height: 40),
+            Row(
               children: [
-                SizedBox(height: size.height * 0.15),
-                Text(
-                  'Welcome to',
-                  style: GoogleFonts.sofiaSans(
-                    fontSize: 46,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w300,
-                  ),
+                Expanded(child: Divider(endIndent: 10)),
+                Text('Sign up with'),
+                Expanded(child: Divider(endIndent: 10)),
+              ],
+            ),
+            const SizedBox(height: 40),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _socialButton(
+                  'Continue with Facebook',
+                  'assets/images/facebook.png',
+                  vm.signInWithFacebook,
+                  const Color.fromRGBO(63, 86, 147, 1),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'GoGo Food',
-                  style: GoogleFonts.sofiaSans(
-                    fontSize: 38,
-                    color: const Color(0xFFFF6766),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Your favourite foods delivered fast\nat your door.',
-                  style: GoogleFonts.sofia(
-                    fontSize: 22,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
-                SizedBox(height: size.height * 0.15),
-                Row(
-                  children: [
-                    const Expanded(
-                      child: Divider(
-                        color: Colors.white54,
-                        thickness: 1,
-                        endIndent: 20,
-                      ),
-                    ),
-                    Text(
-                      'sign in with',
-                      style: GoogleFonts.sofia(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w300,
-                      ),
-                    ),
-                    const Expanded(
-                      child: Divider(
-                        color: Colors.white54,
-                        thickness: 1,
-                        indent: 20,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _socialButton(
-                      'Facebook',
-                      'assets/images/facebook.png',
-                      vm.signInWithFacebook,
-                    ),
-                    _socialButton(
-                      'Google',
-                      'assets/images/google.png',
-                      vm.signInWithGoogle,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 30),
-                Center(child: _emailOrPhoneButton(vm.startWithEmailOrPhone)),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Do not have an account?',
-                      style: TextStyle(color: Colors.white70, fontSize: 18),
-                    ),
-                    TextButton(
-                      onPressed: () => vm.signup(context),
-                      child: const Text(
-                        'Sign up',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 20,
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                    ),
-                  ],
+                _socialButton(
+                  'Continue with Google',
+                  'assets/images/google.png',
+                  vm.signInWithGoogle,
+                  Color.fromRGBO(83, 132, 237, 1),
                 ),
               ],
             ),
-          ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _socialButton(String text, String iconPath, VoidCallback onPressed) {
-    return ElevatedButton.icon(
-      onPressed: onPressed,
-      label: Text(text),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      ),
-      icon: Image.asset(iconPath, width: 24, height: 24),
+  Widget _buildTextField({
+    required FocusNode focusNode,
+    required String label,
+    required String hintText,
+    required TextEditingController controller,
+    String? errorText,
+    bool obscureText = false,
+    bool isPassword = false,
+    VoidCallback? toogleVisibility,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        ),
+        const SizedBox(height: 4),
+        TextField(
+          focusNode: focusNode,
+          controller: controller,
+          obscureText: obscureText,
+          decoration: InputDecoration(
+            hintText: hintText,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: errorText != null ? Colors.red : Colors.black54,
+                width: 2,
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: errorText != null ? Colors.red : Colors.black54,
+              ),
+            ),
+            errorText: errorText,
+            suffixIcon: isPassword
+                ? IconButton(
+                    onPressed: toogleVisibility,
+                    icon: Icon(
+                      obscureText ? Icons.visibility_off : Icons.visibility,
+                    ),
+                  )
+                : null,
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _emailOrPhoneButton(VoidCallback onPressed) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white.withOpacity(0.4),
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
-      ),
+  Widget _socialButton(
+    String text,
+    String iconPath,
+    VoidCallback onPressed,
+    Color backgroundColor,
+  ) {
+    return ElevatedButton.icon(
       onPressed: onPressed,
-      child: const Text(
-        'Start with email or phone',
-        style: TextStyle(fontSize: 20, color: Colors.black54),
+      icon: Image.asset(iconPath, width: 24, height: 24),
+      label: Text(text, style: TextStyle(color: Colors.white)),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: backgroundColor,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadiusGeometry.circular(24),
+        ),
       ),
     );
   }
