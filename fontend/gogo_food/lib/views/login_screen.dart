@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:gogo_food/viewmodels/forgot_password_view_model.dart';
 import 'package:gogo_food/viewmodels/login_view_model.dart';
+import 'package:gogo_food/views/forgot_password_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
@@ -55,12 +57,24 @@ class _LoginScreen extends State<LoginScreen> {
               toogleVisibility: vm.togglePasswordVisibility,
               obscureText: !vm.showPassword,
             ),
-            const SizedBox(height: 8),
-            TextButton(
-              onPressed: vm.forgotPassword,
-              child: const Text(
-                'Forgot a password?',
-                style: TextStyle(color: Colors.redAccent),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ChangeNotifierProvider(
+                        create: (_) => ForgotPasswordViewModel(),
+                        child: ForgotPasswordScreen(),
+                      ),
+                    ),
+                  );
+                },
+                child: const Text(
+                  'Forgot a password?',
+                  style: TextStyle(color: Colors.redAccent, fontSize: 18),
+                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -81,7 +95,11 @@ class _LoginScreen extends State<LoginScreen> {
                 ),
                 child: const Text(
                   'SIGN IN',
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
@@ -89,8 +107,8 @@ class _LoginScreen extends State<LoginScreen> {
             Row(
               children: [
                 Expanded(child: Divider(endIndent: 10)),
-                Text('Sign up with'),
-                Expanded(child: Divider(endIndent: 10)),
+                Text('Sign up with', style: TextStyle(fontSize: 18)),
+                Expanded(child: Divider(indent: 10)),
               ],
             ),
             const SizedBox(height: 40),

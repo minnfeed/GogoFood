@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:gogo_food/viewmodels/login_view_model.dart';
 import 'package:gogo_food/viewmodels/welcome_view_model.dart';
+import 'package:gogo_food/views/login_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
@@ -100,7 +102,19 @@ class WelcomeScreen extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 30),
-                Center(child: _emailOrPhoneButton(vm.startWithEmailOrPhone)),
+                Center(
+                  child: _emailOrPhoneButton(() {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ChangeNotifierProvider(
+                          create: (_) => LoginViewModel(),
+                          child: LoginScreen(),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
                 const SizedBox(height: 24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

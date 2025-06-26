@@ -46,8 +46,6 @@ class LoginViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void forgotPassword() {}
-
   void login() {}
 
   void signInWithFacebook() {}
@@ -72,8 +70,13 @@ class LoginViewModel extends ChangeNotifier {
 
   void validateUsername() {
     final username = usernameController.text.trim();
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    final phoneRegex = RegExp(r'^\d{9,11}$');
     if (username.isEmpty) {
-      usernameError = 'Username is required';
+      usernameError = 'Email or phone number is required';
+    } else if (!emailRegex.hasMatch(username) &&
+        !phoneRegex.hasMatch(username)) {
+      usernameError = 'Please enter a valid email or phone number';
     } else {
       usernameError = null;
     }
