@@ -3,12 +3,16 @@ package com.example.springbootservices.service;
 import com.example.springbootservices.dto.AddressDto;
 import com.example.springbootservices.dto.RegisterRequest;
 import com.example.springbootservices.dto.UserDto;
+import com.example.springbootservices.model.entites.Address;
 import com.example.springbootservices.model.entites.Role;
 import com.example.springbootservices.model.entites.User;
 import com.example.springbootservices.model.enums.Status;
 import com.example.springbootservices.reponsitory.RoleRepository;
 import com.example.springbootservices.reponsitory.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,8 +30,6 @@ public class UserService {
     @Autowired
     private RoleRepository roleRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     public User register(RegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
@@ -46,7 +48,7 @@ public class UserService {
         user.setEmail(request.getEmail());
         user.setPhone(request.getPhone());
         user.setUsername(request.getUsername());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setPassword(request.getPassword());
         user.setStatus(Status.INACTIVE);
         user.setRole(role);
         return userRepository.save(user);
@@ -54,11 +56,18 @@ public class UserService {
     public User getUserByUsername(String username) {
         return userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
     }
+    public Boolean activateUserByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy user"));
 
+        user.setStatus(Status.ACTIVE);
+        save(user);
+        return true;
+    }
     public void save(User user) {
         userRepository.save(user);
     }
-
+    @Transactional
     public UserDto convertToDto(User user) {
         UserDto dto = new UserDto();
         dto.setId(user.getId());
@@ -88,7 +97,6 @@ public class UserService {
         dto.setAddresses(addressDtos);
         return dto;
     }
-
     public Optional<User> findByEmail(String mail) {
         return Optional.ofNullable(userRepository.findByEmail(mail)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy user")));

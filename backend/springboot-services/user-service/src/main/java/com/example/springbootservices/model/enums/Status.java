@@ -1,4 +1,7 @@
 package com.example.springbootservices.model.enums;
 public enum Status {
-    ACTIVE, INACTIVE, BANNED
+    ACTIVE,
+    INACTIVE,
+    BANNED,
+    DELETED
 }

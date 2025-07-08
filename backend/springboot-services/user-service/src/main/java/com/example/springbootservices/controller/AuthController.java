@@ -4,6 +4,7 @@ import com.example.springbootservices.dto.*;
 import com.example.springbootservices.service.OtpService;
 import com.example.springbootservices.service.UserService;
 import com.example.springbootservices.utils.JwtUtil;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -43,6 +44,7 @@ public class AuthController {
     @Autowired
     OtpService otpService;
 
+    @Operation(summary = "Đăng nhập người dùng", description = "Đăng nhập và trả về JWT token")
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         authenticationManager.authenticate(
@@ -51,11 +53,8 @@ public class AuthController {
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
         User user = userService.getUserByUsername(userDetails.getUsername());
-
         String token = jwtUtil.generateToken(userDetails);
-
         UserDto userDto = userService.convertToDto(user);
-
         LoginResponse response = new LoginResponse(
                 token,
                 jwtUtil.getJwtExpirationMs(),
@@ -67,6 +66,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
         try {
+            request.setPassword(passwordEncoder.encode(request.getPassword()));
             User user = userService.register(request);
             return ResponseEntity.ok("User registered successfully!");
         } catch (RuntimeException e) {
@@ -155,4 +155,16 @@ public class AuthController {
         response.put("message", "Đặt lại mật khẩu thành công");
         return ResponseEntity.ok(response);
     }
+    @PutMapping("/me/delete")
+    public ResponseEntity<?> deleteCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
+        // Lấy user từ username
+        User user = userService.getUserByUsername(userDetails.getUsername());
+        user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        // Lưu lại
+        userService.save(user);
+        // Trả về thông tin user đã bị xoá mềm (nếu cần)
+        UserDto userDto = userService.convertToDto(user);
+        return ResponseEntity.ok(userDto);
+    }
+
 }
