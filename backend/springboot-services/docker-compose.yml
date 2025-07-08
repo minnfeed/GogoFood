@@ -18,9 +18,19 @@ services:
       - app-network
     depends_on:
       - redis
+      - discovery-server
+    env_file:
+      - .env
     environment:
-      - SPRING_REDIS_HOST=redis
-      - SPRING_REDIS_PORT=6379
+    - SPRING_PROFILES_ACTIVE=default
+    - JWT_SECRET
+    - MYSQL_URL
+    - MYSQL_USERNAME
+    - MYSQL_PASSWORD
+    - GOOGLE_CLIENT_ID
+    - GOOGLE_CLIENT_SECRET
+    - SPRING_REDIS_HOST=redis
+    - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka
 
   notification-service:
     build: ./notification-service
@@ -29,17 +39,24 @@ services:
       - "8082:8082"
     networks:
       - app-network
+    depends_on:
+      - discovery-server
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka
 
   api-gateway:
-  build:
-    context: ./api-gateway
-    dockerfile: Dockerfile
-  ports:
-    - 8080:8080
-  depends_on:
-    - eureka-server
-  environment:
-    EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+    depends_on:
+      - discovery-server
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka
 
   discovery-server:
     build: ./discovery-server
@@ -50,6 +67,7 @@ services:
       - app-network
     environment:
       - EUREKA_SERVER_PORT=8761
+
 networks:
   app-network:
     driver: bridge
