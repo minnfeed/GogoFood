@@ -1,0 +1,55 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+  user-service:
+    build: ./user-service
+    container_name: user-service
+    ports:
+      - "8081:8081"
+    networks:
+      - app-network
+    depends_on:
+      - redis
+    environment:
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+
+  notification-service:
+    build: ./notification-service
+    container_name: notification-service
+    ports:
+      - "8082:8082"
+    networks:
+      - app-network
+
+  api-gateway:
+  build:
+    context: ./api-gateway
+    dockerfile: Dockerfile
+  ports:
+    - 8080:8080
+  depends_on:
+    - eureka-server
+  environment:
+    EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+
+  discovery-server:
+    build: ./discovery-server
+    container_name: discovery-server
+    ports:
+      - "8761:8761"
+    networks:
+      - app-network
+    environment:
+      - EUREKA_SERVER_PORT=8761
+networks:
+  app-network:
+    driver: bridge
