@@ -5,6 +5,10 @@ import com.example.springbootservices.service.OtpService;
 import com.example.springbootservices.service.UserService;
 import com.example.springbootservices.utils.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +21,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import com.example.springbootservices.model.entites.User;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
@@ -48,8 +55,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-        );
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
         User user = userService.getUserByUsername(userDetails.getUsername());
@@ -59,11 +65,16 @@ public class AuthController {
                 token,
                 jwtUtil.getJwtExpirationMs(),
                 "Bearer",
-                userDto
-        );
+                userDto);
         return ResponseEntity.ok(response);
     }
+
     @PostMapping("/register")
+    @Operation(summary = "Register new user", description = "Creates a new user account with the provided email, username and password")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User registered successfully!"),
+            @ApiResponse(responseCode = "400", description = "Invalid input or user already exists", content = @Content(schema = @Schema(implementation = String.class)))
+    })
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
         try {
             request.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -81,9 +92,10 @@ public class AuthController {
         UserDto userDto = userService.convertToDto(user);
         return ResponseEntity.ok(userDto);
     }
+
     @PutMapping("/me")
     public ResponseEntity<?> updateCurrentUser(@AuthenticationPrincipal UserDetails userDetails,
-                                               @RequestBody UpdateUserRequest request) {
+            @RequestBody UpdateUserRequest request) {
         User user = userService.getUserByUsername(userDetails.getUsername());
 
         user.setFullName(request.getFullName());
@@ -97,9 +109,10 @@ public class AuthController {
         UserDto userDto = userService.convertToDto(user);
         return ResponseEntity.ok(userDto);
     }
+
     @PutMapping("/change-password")
     public ResponseEntity<?> changePassword(@AuthenticationPrincipal UserDetails userDetails,
-                                            @RequestBody ChangePasswordRequest request) {
+            @RequestBody ChangePasswordRequest request) {
         User user = userService.getUserByUsername(userDetails.getUsername());
 
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
@@ -116,7 +129,7 @@ public class AuthController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestParam String channel,
-                                            @RequestParam String to) {
+            @RequestParam String to) {
         Map<String, String> response = new HashMap<>();
         Optional<User> optionalUser = userService.findByEmail(to);
         if (optionalUser.isEmpty()) {
@@ -127,6 +140,7 @@ public class AuthController {
         response.put("message", "OTP đã được gửi qua " + channel);
         return ResponseEntity.ok(response);
     }
+
     @PostMapping("/reset-password")
     public ResponseEntity<Map<String, String>> resetPassword(@RequestBody ResetPasswordRequest request) {
         Map<String, String> response = new HashMap<>();
@@ -155,6 +169,7 @@ public class AuthController {
         response.put("message", "Đặt lại mật khẩu thành công");
         return ResponseEntity.ok(response);
     }
+
     @PutMapping("/me/delete")
     public ResponseEntity<?> deleteCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
         // Lấy user từ username
@@ -167,4 +182,16 @@ public class AuthController {
         return ResponseEntity.ok(userDto);
     }
 
+    @PutMapping("/me/upload-avatar")
+    public ResponseEntity<?> uploadAvatar(@AuthenticationPrincipal UserDetails userDetails, @RequestParam("avatar") MultipartFile file){
+        User user = userService.getUserByUsername(userDetails.getUsername());
+        try{
+            userService.uploadAvatar(file,user);
+            return ResponseEntity.ok("Upload thành công");
+        } catch (IOException e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Lỗi khi upload ảnh: " + e.getMessage());
+        }
+    }
 }

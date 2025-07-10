@@ -27,6 +27,6 @@ public class UserDto {
     private String avatarUrl;
     private LocalDate dateOfBirth;
     private Gender gender;
-    private List<AddressDto> addresses;
+    private List<Address> addresses;
 
 }

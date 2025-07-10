@@ -46,7 +46,7 @@ public class SecurityConfig {
                                 "/oauth2/**",
                                 "/login/**"
                                 ).permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**","/auth/**").hasRole("ADMIN")
                         .requestMatchers("/customer/**").hasRole("CUSTOMER")
                         .requestMatchers("/restaurant/**").hasRole("RESTAURANT")
                         .requestMatchers("/driver/**").hasRole("DRIVER")

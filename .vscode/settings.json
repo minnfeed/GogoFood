@@ -1,5 +1,4 @@
 {
-    "cSpell.words": [
-        "fredoka"
-    ]
+  "cSpell.words": ["fredoka"],
+  "java.compile.nullAnalysis.mode": "disabled"
 }
