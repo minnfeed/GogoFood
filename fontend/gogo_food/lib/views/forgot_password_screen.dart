@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gogo_food/viewmodels/forgot_password_view_model.dart';
+import 'package:gogo_food/viewmodels/otp_view_model.dart';
+import 'package:gogo_food/views/otp_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
@@ -19,15 +21,6 @@ class _ForgotPasswordScreen extends State<ForgotPasswordScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text(
-          'Forgot password',
-          style: GoogleFonts.inter(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-          textAlign: TextAlign.center,
-        ),
         elevation: 0,
         leading: BackButton(color: Colors.black),
       ),
@@ -38,7 +31,7 @@ class _ForgotPasswordScreen extends State<ForgotPasswordScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              'Enter email or phone number',
+              'Please enter your phone number or e-mail address to request a password reset',
               style: GoogleFonts.inter(
                 color: Colors.black,
                 fontSize: 26,
@@ -84,7 +77,21 @@ class _ForgotPasswordScreen extends State<ForgotPasswordScreen> {
             ),
             const SizedBox(height: 52),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: vm.isValid
+                  ? () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ChangeNotifierProvider(
+                            create: (_) => OtpViewModel(
+                              phoneOrEmail: vm.usernameController.text.trim(),
+                            ),
+                            child: const OtpScreen(),
+                          ),
+                        ),
+                      );
+                    }
+                  : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: vm.isValid
                     ? const Color(0xFFE13454)

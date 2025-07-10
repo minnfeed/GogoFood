@@ -7,9 +7,10 @@ void main() {
   runApp(
     ChangeNotifierProvider(
       create: (_) => HomeViewModel()..startAnimation(),
-      child: const MaterialApp(
+      child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: GogoFoodHome(),
+        initialRoute: '/',
+        routes: {'/': (context) => GogoFoodHome()},
       ),
     ),
   );

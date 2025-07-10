@@ -13,7 +13,6 @@ class ForgotPasswordViewModel extends ChangeNotifier {
 
     usernameController.addListener(() {
       validateUsername();
-      _updateValidate();
     });
   }
 
@@ -29,10 +28,7 @@ class ForgotPasswordViewModel extends ChangeNotifier {
     } else {
       usernameError = null;
     }
-    notifyListeners();
-  }
 
-  void _updateValidate() {
     isValid = usernameError == null;
     notifyListeners();
   }
