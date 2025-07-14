@@ -37,6 +37,8 @@ dependencies:
   flutter_native_splash: ^2.4.6
   provider: ^6.1.5
   google_fonts: ^6.2.1
+  sms_autofill: ^2.4.1
+  geolocator: ^14.0.2
 
 dev_dependencies:
   flutter_test:

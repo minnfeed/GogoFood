@@ -7,7 +7,6 @@ class WelcomeViewModel extends ChangeNotifier {
   void signInWithFacebook() {}
 
   void signInWithGoogle() {}
-  void startWithEmailOrPhone() {}
   void signup(BuildContext context) {
     Navigator.push(
       context,
