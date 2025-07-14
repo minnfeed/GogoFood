@@ -1,6 +1,6 @@
 package com.example.commerceservice.domain.model.entity;
 
-import com.example.commerceservice.domain.model.Enum.Status;
+import com.example.commerceservice.domain.model.valueobject.Status;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
