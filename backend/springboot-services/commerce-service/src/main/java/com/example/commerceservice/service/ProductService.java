@@ -7,4 +7,5 @@ import java.util.UUID;
 
 public interface ProductService {
     List<ProductPreviewProjection> getProductPreviewsByCategory(UUID categoryId);
+    List<ProductPreviewProjection> getProductPreviewsByKeyword(String keyword);
 }

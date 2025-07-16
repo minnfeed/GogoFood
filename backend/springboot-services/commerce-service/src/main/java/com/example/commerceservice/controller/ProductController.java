@@ -26,4 +26,8 @@ public class ProductController {
     public List<ProductPreviewProjection> getProductPreviewsByCategory(@PathVariable UUID categoryId) {
         return productService.getProductPreviewsByCategory(categoryId);
     }
+    @GetMapping("/search/{keyword}/previews")
+    public List<ProductPreviewProjection> getProductPreviewsByKeyword(@PathVariable String keyword) {
+        return productService.getProductPreviewsByKeyword(keyword);
+    }
 }

@@ -21,4 +21,8 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductPreviewProjection> getProductPreviewsByCategory(UUID categoryId) {
         return productRepository.findProductPreviewsByCategory(categoryId);
     }
+    @Override
+    public List<ProductPreviewProjection> getProductPreviewsByKeyword(String keyword) {
+        return productRepository.searchProductPreviewsByKeyword(keyword);
+    }
 }

@@ -10,8 +10,8 @@ FROM eclipse-temurin:21-jdk
 
 WORKDIR /app
 
-COPY --from=build /app/target/*.jar user-service.jar
+COPY --from=build /app/target/*.jar client-service.jar
 
 EXPOSE 8081
 
-ENTRYPOINT ["java", "-jar", "user-service.jar"]
+ENTRYPOINT ["java", "-jar", "client-service.jar"]

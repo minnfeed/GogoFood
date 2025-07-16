@@ -27,4 +27,34 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     WHERE p.categoryId = :categoryId
 """)
     List<ProductPreviewProjection> findProductPreviewsByCategory(@Param("categoryId") UUID categoryId);
+
+    @Query("""
+    SELECT p.id AS id,
+           p.name AS name,
+           p.price AS price,
+           (
+               SELECT i.imageUrl
+               FROM ProductImage i
+               WHERE i.productId = p.id AND i.isMain = true
+           ) AS thumbnailUrl
+    FROM Product p
+    WHERE p.storeId = :storeId
+""")
+    List<ProductPreviewProjection> findProductPreviewsByRestaurant(@Param("storeId") UUID restaurantId);
+
+    @Query("""
+    SELECT p.id AS id,
+           p.name AS name,
+           p.price AS price,
+           (
+               SELECT i.imageUrl
+               FROM ProductImage i
+               WHERE i.productId = p.id AND i.isMain = true
+           ) AS thumbnailUrl
+    FROM Product p
+    WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+       OR LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%'))
+""")
+    List<ProductPreviewProjection> searchProductPreviewsByKeyword(@Param("keyword") String keyword);
+
 }
