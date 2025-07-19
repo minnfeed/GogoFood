@@ -29,11 +29,11 @@ public class Address {
     private User user;
 
     @Column(nullable = false)
-    private String street; // Ví dụ: 123 Nguyễn Văn Cừ
+    private String street;
 
-    private String ward;     // Phường 1
-    private String district; // Quận 5
-    private String city;     // TP. HCM
+    private String ward;
+    private String district;
+    private String city;
 
     @Column(name = "is_default")
     private boolean isDefault;

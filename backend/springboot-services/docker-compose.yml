@@ -10,8 +10,8 @@ services:
       - app-network
 
   user-service:
-    build: ./user-service
-    container_name: user-service
+    build: ./client-service
+    container_name: client-service
     ports:
       - "8081:8081"
     networks:

@@ -46,9 +46,9 @@ public class SecurityConfig {
                                 "/oauth2/**",
                                 "/login/**"
                                 ).permitAll()
-                        .requestMatchers("/admin/**","/auth/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/customer/**").hasRole("CUSTOMER")
-                        .requestMatchers("/restaurant/**").hasRole("RESTAURANT")
+                        .requestMatchers("/restaurant/**","/restaurant/profile").hasRole("RESTAURANT")
                         .requestMatchers("/driver/**").hasRole("DRIVER")
 
                         .anyRequest().authenticated()
