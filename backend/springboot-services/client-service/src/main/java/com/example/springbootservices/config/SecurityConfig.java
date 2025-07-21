@@ -44,6 +44,7 @@ public class SecurityConfig {
                                 ,"/",
                                 "/auth/**",
                                 "/oauth2/**",
+                                "api/geocoding/**",
                                 "/login/**"
                                 ).permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")

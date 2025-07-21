@@ -2,11 +2,14 @@ package com.example.springbootservices.service;
 
 import com.example.springbootservices.config.CurrentUserProvider;
 import com.example.springbootservices.dto.CreateRestaurantProfileRequest;
+import com.example.springbootservices.dto.RestaurantProfileResponse;
 import com.example.springbootservices.dto.UpdateRestaurantProfileRequest;
+import com.example.springbootservices.dto.UpdateStatusRequest;
 import com.example.springbootservices.model.entites.RestaurantProfile;
 import com.example.springbootservices.model.entites.User;
 import com.example.springbootservices.reponsitory.RestaurantProfileRepository;
 import com.example.springbootservices.reponsitory.UserRepository;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -62,4 +65,33 @@ public class RestaurantProfileService {
 
         restaurantProfileRepository.save(profile);
     }
+
+    public RestaurantProfileResponse getByUserId(UUID userId) {
+        RestaurantProfileResponse restaurantProfileResponse = new RestaurantProfileResponse();
+        return restaurantProfileResponse.mapToDto(restaurantProfileRepository.findByUserId(userId));
+    }
+
+    @Transactional
+    public void updateLocation(Double latitude, Double longitude) {
+        UUID currentUserId = currentUserProvider.getCurrentUserId();
+
+        RestaurantProfile profile = restaurantProfileRepository
+                .findByUserId(currentUserId) ;
+
+        profile.setLatitude(latitude);
+        profile.setLongitude(longitude);
+
+        restaurantProfileRepository.save(profile);
+    }
+
+
+    public void updateStatus(UpdateStatusRequest request) {
+        UUID currentUserId = currentUserProvider.getCurrentUserId();
+
+        RestaurantProfile profile = restaurantProfileRepository.findByUserId(currentUserId) ;
+
+        profile.setIsOpen(request.getStatus());
+        restaurantProfileRepository.save(profile);
+    }
 }
+

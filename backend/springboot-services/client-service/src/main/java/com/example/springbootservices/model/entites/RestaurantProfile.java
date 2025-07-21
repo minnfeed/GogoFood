@@ -41,4 +41,6 @@ public class RestaurantProfile {
     @OneToOne
     @JoinColumn(name = "user_id", unique = true)
     private User user;
+
+
 }

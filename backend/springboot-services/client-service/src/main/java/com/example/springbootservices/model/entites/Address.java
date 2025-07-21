@@ -30,7 +30,6 @@ public class Address {
 
     @Column(nullable = false)
     private String street;
-
     private String ward;
     private String district;
     private String city;
