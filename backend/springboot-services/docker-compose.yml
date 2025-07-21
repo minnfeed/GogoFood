@@ -9,7 +9,7 @@ services:
     networks:
       - app-network
 
-  user-service:
+  client-service:
     build: ./client-service
     container_name: client-service
     ports:
