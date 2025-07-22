@@ -52,7 +52,7 @@ public class OAuth2LoginService {
         }
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
-        String token = jwtUtil.generateToken(userDetails);
+        String token = jwtUtil.generateToken(userDetails.getUsername(),,userDetails.getAuthorities().stream().findFirst().get(), jwtUtil.getJwtExpirationMs());
 
         UserDto dto = new UserDto();
         dto.setId(user.getId());

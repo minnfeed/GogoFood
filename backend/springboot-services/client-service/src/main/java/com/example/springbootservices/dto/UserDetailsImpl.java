@@ -1,5 +1,6 @@
 package com.example.springbootservices.dto;
 
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class UserDetailsImpl implements UserDetails {
+    @Getter
     private final UUID id;
     private final String username;
     private final String password;
@@ -23,14 +25,12 @@ public class UserDetailsImpl implements UserDetails {
 
     // constructor, getter...
 
-    public UUID getId() {
-        return id;
-    }
-
     @Override
     public String getUsername() {
         return username;
     }
+
+    public UUID getID() { return id; }
 
     @Override
     public boolean isAccountNonExpired() {

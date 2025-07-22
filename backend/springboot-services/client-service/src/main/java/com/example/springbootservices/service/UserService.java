@@ -23,11 +23,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class UserService {
-
     @Autowired
     private UserRepository userRepository;
 
@@ -65,6 +65,9 @@ public class UserService {
     public User getUserByUsername(String username) {
         return userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
     }
+    public User getUserByUserID(UUID userID) {
+        return userRepository.findUserById(userID);
+    };
     @Transactional
     public Boolean activateUserByEmail(String email) {
         User user = userRepository.findByEmail(email)
