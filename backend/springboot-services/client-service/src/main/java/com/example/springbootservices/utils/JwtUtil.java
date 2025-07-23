@@ -1,5 +1,6 @@
 package com.example.springbootservices.utils;
 
+import com.example.springbootservices.dto.UserDetailsImpl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import org.springframework.security.core.GrantedAuthority;
+
 
 @Component
 public class JwtUtil {
@@ -29,11 +32,21 @@ public class JwtUtil {
     }
 
     public String generateToken(UserDetails userDetails) {
+        UserDetailsImpl user = (UserDetailsImpl) userDetails;
+
+        String role = user.getAuthorities().stream()
+                .findFirst()
+                .map(GrantedAuthority::getAuthority)
+                .orElse("ROLE_USER");
+
         return Jwts.builder()
-                .setSubject(userDetails.getUsername())
+                .setSubject(user.getUsername())
+                .claim("userId", user.getId().toString())
+                .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
                 .compact();
     }
+
 }

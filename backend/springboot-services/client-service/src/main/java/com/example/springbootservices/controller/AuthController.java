@@ -1,6 +1,9 @@
 package com.example.springbootservices.controller;
 
+import com.example.springbootservices.config.CurrentUserProvider;
 import com.example.springbootservices.dto.*;
+import com.example.springbootservices.model.entites.User;
+import com.example.springbootservices.model.enums.Status;
 import com.example.springbootservices.service.OtpService;
 import com.example.springbootservices.service.UserService;
 import com.example.springbootservices.utils.JwtUtil;
@@ -18,12 +21,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import com.example.springbootservices.model.entites.User;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -54,6 +55,9 @@ public class AuthController {
     @Autowired
     OtpService otpService;
 
+    @Autowired
+    CurrentUserProvider currentUserProvider;
+
     @Operation(summary = "Đăng nhập", description = "Xác thực người dùng và trả về JWT token")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Đăng nhập thành công"),
@@ -70,8 +74,6 @@ public class AuthController {
         UserDto userDto = userService.convertToDto(user);
         LoginResponse response = new LoginResponse(
                 token,
-                jwtUtil.getJwtExpirationMs(),
-                "Bearer",
                 userDto);
         return ResponseEntity.ok(response);
     }
@@ -97,10 +99,9 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "Chưa đăng nhập hoặc token không hợp lệ")
     })
     @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> getCurrentUser() {
 
-        User user = userService.getUserByUsername(userDetails.getUsername());
-
+        User user = userService.getUserByID(currentUserProvider.getCurrentUserId());
         UserDto userDto = userService.convertToDto(user);
         return ResponseEntity.ok(userDto);
     }
@@ -112,9 +113,9 @@ public class AuthController {
     })
 
     @PutMapping("/me")
-    public ResponseEntity<?> updateCurrentUser(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<?> updateCurrentUser(
             @RequestBody UpdateUserRequest request) {
-        User user = userService.getUserByUsername(userDetails.getUsername());
+        User user = userService.getUserByID(currentUserProvider.getCurrentUserId());
 
         user.setFullName(request.getFullName());
         user.setPhone(request.getPhone());
@@ -135,9 +136,9 @@ public class AuthController {
     })
 
     @PutMapping("/change-password")
-    public ResponseEntity<?> changePassword(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<?> changePassword(
             @RequestBody ChangePasswordRequest request) {
-        User user = userService.getUserByUsername(userDetails.getUsername());
+        User user = userService.getUserByID(currentUserProvider.getCurrentUserId());
 
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -215,13 +216,11 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "Không được xác thực")
     })
     @PutMapping("/me/delete")
-    public ResponseEntity<?> deleteCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
-        // Lấy user từ username
-        User user = userService.getUserByUsername(userDetails.getUsername());
+    public ResponseEntity<?> deleteCurrentUser() {
+        User user = userService.getUserByID(currentUserProvider.getCurrentUserId());
         user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-        // Lưu lại
+        user.setStatus(Status.DELETED);
         userService.save(user);
-        // Trả về thông tin user đã bị xoá mềm (nếu cần)
         UserDto userDto = userService.convertToDto(user);
         return ResponseEntity.ok(userDto);
     }
@@ -233,8 +232,8 @@ public class AuthController {
     })
 
     @PutMapping("/me/upload-avatar")
-    public ResponseEntity<?> uploadAvatar(@AuthenticationPrincipal UserDetails userDetails, @RequestParam("avatar") MultipartFile file){
-        User user = userService.getUserByUsername(userDetails.getUsername());
+    public ResponseEntity<?> uploadAvatar( @RequestParam("avatar") MultipartFile file){
+        User user = userService.getUserByID(currentUserProvider.getCurrentUserId());
         try{
             userService.uploadAvatar(file,user);
             return ResponseEntity.ok("Upload thành công");

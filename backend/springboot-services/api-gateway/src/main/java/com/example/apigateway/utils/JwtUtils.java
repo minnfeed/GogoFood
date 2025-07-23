@@ -20,7 +20,6 @@ public class JwtUtils {
     public String getUsernameFromToken(String token) {
         return getClaimsFromToken(token).getSubject();
     }
-
     public UUID getUserIdFromToken(String token) {
         String userId = getClaimsFromToken(token).get("userId", String.class);
         return UUID.fromString(userId);
@@ -55,17 +54,5 @@ public class JwtUtils {
             System.err.println("JWT invalid: " + ex.getMessage());
         }
         return false;
-    }
-
-    // (Tùy chọn) Tạo token (dành cho user-service)
-    public String generateToken(String username, UUID userId, String role, long expirationMillis) {
-        return Jwts.builder()
-                .setSubject(username)
-                .claim("userId", userId.toString())
-                .claim("role", role)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationMillis))
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
     }
 }

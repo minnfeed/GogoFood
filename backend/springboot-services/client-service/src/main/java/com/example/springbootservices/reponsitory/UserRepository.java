@@ -43,4 +43,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
         WHERE r.name = 'CUSTOMER'
     """)
     Page<CustomerAdminView> findAllCustomersForAdmin(Pageable pageable);
+
+    User getUserById(UUID uuid);
 }

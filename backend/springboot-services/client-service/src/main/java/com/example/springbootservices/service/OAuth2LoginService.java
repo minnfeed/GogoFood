@@ -68,8 +68,6 @@ public class OAuth2LoginService {
 
         return new LoginResponse(
                 token,
-                jwtUtil.getJwtExpirationMs(),
-                "Bearer",
                 dto
         );
     }

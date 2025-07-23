@@ -2,6 +2,7 @@ package com.example.springbootservices.config;
 
 import com.example.springbootservices.controller.CustomOAuth2SuccessHandler;
 import com.example.springbootservices.service.CustomUserDetailsService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,40 +30,20 @@ public class SecurityConfig {
     private CustomUserDetailsService userDetailsService;
     @Autowired
     private CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
+    @Autowired
+    private HeaderAuthenticationFilter headerAuthenticationFilter;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/v3/api-docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/auth/**",
-                                "/error",
-                                "/api/otp/**"
-                                ,"/",
-                                "/auth/**",
-                                "/oauth2/**",
-                                "api/geocoding/**",
-                                "/login/**"
-                                ).permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/customer/**").hasRole("CUSTOMER")
-                        .requestMatchers("/restaurant/**","/restaurant/profile").hasRole("RESTAURANT")
-                        .requestMatchers("/driver/**").hasRole("DRIVER")
-
-                        .anyRequest().authenticated()
-                )
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .oauth2Login(oauth2 -> oauth2
-                        .successHandler(customOAuth2SuccessHandler)
-                )
-                .authenticationProvider(authenticationProvider());
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .addFilterBefore(headerAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();

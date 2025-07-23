@@ -1,31 +1,29 @@
 package com.example.springbootservices.config;
 
-
-import com.example.springbootservices.dto.UserDetailsImpl;
-import com.example.springbootservices.exception.UnauthorizedException;
-
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-
 import java.util.UUID;
 
 @Component
 public class CurrentUserProvider {
 
-    @Autowired
-    private HttpServletRequest request;
+    private final HttpServletRequest request;
+
+    public CurrentUserProvider(HttpServletRequest request) {
+        this.request = request;
+    }
 
     public UUID getCurrentUserId() {
         String userId = request.getHeader("X-User-Id");
-        if (userId == null) throw new UnauthorizedException("Missing user ID");
-        return UUID.fromString(userId);
+        return userId != null ? UUID.fromString(userId) : null;
     }
 
-    public String getUserRole() {
+    public String getUsername() {
+        return request.getHeader("X-User-Name");
+    }
+
+    public String getRole() {
         return request.getHeader("X-Role");
     }
+
 }
