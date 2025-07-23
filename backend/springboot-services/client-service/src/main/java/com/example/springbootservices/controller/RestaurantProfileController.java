@@ -77,7 +77,7 @@ public class RestaurantProfileController {
     @GetMapping("/me")
     public ResponseEntity<RestaurantProfileResponse> getMyRestaurantProfile() {
         UUID userId = currentUserProvider.getCurrentUserId();
-        return ResponseEntity.ok(restaurantProfileService.getByUserId(userId));
+        return ResponseEntity.ok(restaurantProfileService.getRestaurentByUserId(userId));
     }
 
     @Operation(

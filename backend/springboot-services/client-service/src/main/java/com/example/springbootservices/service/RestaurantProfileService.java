@@ -9,6 +9,7 @@ import com.example.springbootservices.model.entites.RestaurantProfile;
 import com.example.springbootservices.model.entites.User;
 import com.example.springbootservices.reponsitory.RestaurantProfileRepository;
 import com.example.springbootservices.reponsitory.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,18 +66,14 @@ public class RestaurantProfileService {
 
         restaurantProfileRepository.save(profile);
     }
-
-    public RestaurantProfileResponse getByUserId(UUID userId) {
-        RestaurantProfileResponse restaurantProfileResponse = new RestaurantProfileResponse();
-        return restaurantProfileResponse.mapToDto(restaurantProfileRepository.findByUserId(userId));
-    }
+    
 
     @Transactional
     public void updateLocation(Double latitude, Double longitude) {
         UUID currentUserId = currentUserProvider.getCurrentUserId();
 
         RestaurantProfile profile = restaurantProfileRepository
-                .findByUserId(currentUserId) ;
+                .findByUserId(currentUserId).orElseThrow(() -> new EntityNotFoundException("RestaurantProfile not found for user " + currentUserId)); ;
 
         profile.setLatitude(latitude);
         profile.setLongitude(longitude);
@@ -88,10 +85,21 @@ public class RestaurantProfileService {
     public void updateStatus(UpdateStatusRequest request) {
         UUID currentUserId = currentUserProvider.getCurrentUserId();
 
-        RestaurantProfile profile = restaurantProfileRepository.findByUserId(currentUserId) ;
+        RestaurantProfile profile = restaurantProfileRepository.findByUserId(currentUserId).orElseThrow(() -> new EntityNotFoundException("RestaurantProfile not found for user " + currentUserId)); ;
 
         profile.setIsOpen(request.getStatus());
         restaurantProfileRepository.save(profile);
+    }
+
+    public RestaurantProfile getByUserId(UUID userId) {
+        return restaurantProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new EntityNotFoundException("RestaurantProfile not found for user " + userId));
+    }
+
+
+    public RestaurantProfileResponse getRestaurentByUserId(UUID userId) {
+        RestaurantProfileResponse restaurantProfileResponse = new RestaurantProfileResponse();
+        return restaurantProfileResponse.mapToDto(restaurantProfileRepository.findByUserId(userId).orElseThrow(() -> new EntityNotFoundException("RestaurantProfile not found for user " + userId)));
     }
 }
 

@@ -29,7 +29,7 @@ public class ProductController {
     public List<ProductPreviewProjection> getProductPreviewsByKeyword(@PathVariable String keyword) {
         return productService.getProductPreviewsByKeyword(keyword);
     }
-    @PutMapping("/create")
+    @PostMapping ("/create")
     public ResponseEntity<String> addProduct(@RequestBody CreateProductRequest product) {
         productService.createProduct(product);
         return ResponseEntity.ok("Tạo sản phẩm thành công!");

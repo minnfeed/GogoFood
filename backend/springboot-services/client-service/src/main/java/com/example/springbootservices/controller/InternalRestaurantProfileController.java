@@ -1,6 +1,5 @@
 package com.example.springbootservices.controller;
 
-import com.example.springbootservices.dto.RestaurantProfileResponse;
 import com.example.springbootservices.service.RestaurantProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

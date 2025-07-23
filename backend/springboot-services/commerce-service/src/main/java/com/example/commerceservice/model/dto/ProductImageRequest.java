@@ -5,6 +5,9 @@ import lombok.Data;
 @Data
 public class ProductImageRequest {
     private String imageUrl;
-    private boolean isMain;
+    private String isMain; // "true" hoặc "false"
 
+    public boolean isMainBoolean() {
+        return Boolean.parseBoolean(isMain);
+    }
 }
