@@ -21,6 +21,6 @@ public class CreateProductRequest {
     private UUID categoryId;
 
 
-    private List<ProductImageRequest> images;
+    private List<ProductImageDto> images;
 
 }
