@@ -22,3 +22,6 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: ${EUREKA_URL}
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION}
