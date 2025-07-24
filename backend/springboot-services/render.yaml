@@ -4,6 +4,6 @@ services:
     env: docker
     repo: https://github.com/eddiekhean/GogoFood
     region: singapore
-    branch: dev
+    branch: main
     rootDir: springboot-services
     dockerCommand: docker-compose up
