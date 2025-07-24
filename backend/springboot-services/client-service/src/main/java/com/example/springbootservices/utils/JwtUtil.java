@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,13 +20,17 @@ import org.springframework.security.core.GrantedAuthority;
 
 @Component
 public class JwtUtil {
-    @Value("${jwt.secret}")
-    private String jwtSecret;
 
-    @Getter
-    @Value("${jwt.expiration}")
-    private long jwtExpirationMs;
+    private final String jwtSecret;
+    private final Long jwtExpiration;
 
+    public JwtUtil(
+            @Value("${jwt.secret}") String jwtSecret,
+            @Value("${jwt.expiration}") Long jwtExpiration
+    ) {
+        this.jwtSecret = jwtSecret;
+        this.jwtExpiration = jwtExpiration;
+    }
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
@@ -44,9 +49,14 @@ public class JwtUtil {
                 .claim("userId", user.getId().toString())
                 .claim("role", role)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
                 .compact();
+    }
+    @PostConstruct
+    public void check() {
+        System.out.println(">>> JWT_SECRET = [" + jwtSecret + "]");
+        System.out.println(">>> Length = " + (jwtSecret != null ? jwtSecret.length() : "null"));
     }
 
 }
