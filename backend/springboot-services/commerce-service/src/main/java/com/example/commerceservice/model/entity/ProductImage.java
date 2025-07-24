@@ -20,17 +20,14 @@ public class ProductImage {
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID id;
 
-    @Column(name = "product_id", nullable = false)
-    private UUID productId;
-
     @Column(name = "image_url", columnDefinition = "TEXT", nullable = false)
     private String imageUrl;
 
     @Column(name = "is_main", nullable = false)
     private boolean isMain;
 
-    // 🔗 Quan hệ: mỗi ảnh thuộc về một product
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 }
+

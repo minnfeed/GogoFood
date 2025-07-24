@@ -21,7 +21,7 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
            (
                SELECT i.imageUrl
                FROM ProductImage i
-               WHERE i.productId = p.id AND i.isMain = true
+               WHERE i.product.id = p.id AND i.isMain = true
            ) AS thumbnailUrl
     FROM Product p
     WHERE p.categoryId = :categoryId
@@ -35,7 +35,7 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
            (
                SELECT i.imageUrl
                FROM ProductImage i
-               WHERE i.productId = p.id AND i.isMain = true
+               WHERE i.product.id = p.id AND i.isMain = true
            ) AS thumbnailUrl
     FROM Product p
     WHERE p.storeId = :storeId
@@ -49,7 +49,7 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
            (
                SELECT i.imageUrl
                FROM ProductImage i
-               WHERE i.productId = p.id AND i.isMain = true
+               WHERE i.product.id = p.id AND i.isMain = true
            ) AS thumbnailUrl
     FROM Product p
     WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))

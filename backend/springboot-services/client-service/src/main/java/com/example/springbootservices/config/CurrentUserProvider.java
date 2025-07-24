@@ -1,42 +1,29 @@
 package com.example.springbootservices.config;
 
-
-import com.example.springbootservices.dto.UserDetailsImpl;
-import com.example.springbootservices.exception.UnauthorizedException;
-
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Component;
-
 import java.util.UUID;
 
 @Component
 public class CurrentUserProvider {
 
+    private final HttpServletRequest request;
+
+    public CurrentUserProvider(HttpServletRequest request) {
+        this.request = request;
+    }
+
     public UUID getCurrentUserId() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        if (auth == null || !auth.isAuthenticated()) {
-            throw new UnauthorizedException("User not authenticated");
-        }
-
-        Object principal = auth.getPrincipal();
-
-        if (principal instanceof UserDetailsImpl userDetails) {
-            return userDetails.getId();
-        }
-
-        throw new UnauthorizedException("Invalid user principal");
+        String userId = request.getHeader("X-User-Id");
+        return userId != null ? UUID.fromString(userId) : null;
     }
 
-    public String getCurrentUsername() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        if (auth == null || !auth.isAuthenticated()) {
-            throw new UnauthorizedException("User not authenticated");
-        }
-
-        return auth.getName();
+    public String getUsername() {
+        return request.getHeader("X-User-Name");
     }
+
+    public String getRole() {
+        return request.getHeader("X-Role");
+    }
+
 }
