@@ -98,16 +98,6 @@ class SignupViewModel extends ChangeNotifier {
 
   void signInWithFacebook() {}
 
-  void dispose() {
-    fullNameController.dispose();
-    emailController.dispose();
-    phoneController.dispose();
-    usernameController.dispose();
-    passwordController.dispose();
-    confirmPasswordController.dispose();
-    super.dispose();
-  }
-
   void _validateAll() {
     validateFullName();
     validateEmail();

@@ -1,31 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:gogo_food/viewmodels/home_view_model.dart';
+import 'package:gogo_food/viewmodels/gogo_food_view_model.dart';
 import 'package:gogo_food/viewmodels/welcome_view_model.dart';
 import 'package:gogo_food/views/welcome_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-class GogoFoodHome extends StatefulWidget {
-  const GogoFoodHome({super.key});
+class GogoFoodScreen extends StatefulWidget {
+  const GogoFoodScreen({super.key});
 
   @override
   State<StatefulWidget> createState() {
-    return _GogoFoodHome();
+    return _GogoFoodScreen();
   }
 }
 
-class _GogoFoodHome extends State<GogoFoodHome> {
+class _GogoFoodScreen extends State<GogoFoodScreen> {
   @override
   void initState() {
     super.initState();
     Future.microtask(() {
-      Provider.of<HomeViewModel>(context, listen: false).startAnimation();
+      Provider.of<GogoFoodViewModel>(context, listen: false).startAnimation();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = Provider.of<HomeViewModel>(context);
+    final viewModel = Provider.of<GogoFoodViewModel>(context);
 
     if (viewModel.isAnimationDone) {
       Future.microtask(() {
@@ -99,7 +99,7 @@ class _GogoFoodHome extends State<GogoFoodHome> {
     );
   }
 
-  Widget _buildAnimatedImages(BuildContext context, HomeViewModel vm) {
+  Widget _buildAnimatedImages(BuildContext context, GogoFoodViewModel vm) {
     return Stack(
       children: [
         Positioned(
